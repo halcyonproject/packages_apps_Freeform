@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <permissions>
     <privapp-permissions package="com.libremobileos.sidebar">
-        <permission name="com.yaap.permission.START_FREEFORM"/>
+        <permission name="com.halcyon.permission.START_FREEFORM"/>
     </privapp-permissions>
 </permissions>
