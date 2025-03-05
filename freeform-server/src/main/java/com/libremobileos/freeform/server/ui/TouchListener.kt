@@ -65,18 +65,6 @@ class MaximizeClickListener(private val window: FreeformWindow): View.OnClickLis
     }
 }
 
-/**
- * Pin freeform
- */
-class PinClickListener(private val window: FreeformWindow): View.OnClickListener {
-    override fun onClick(v: View) {
-        window.handler.post {
-            // hangup
-            window.handleHangUp()
-        }
-    }
-}
-
 class RightViewClickListener(private val displayId: Int) : View.OnClickListener {
     override fun onClick(v: View) {
         LMOFreeformServiceHolder.back(displayId)

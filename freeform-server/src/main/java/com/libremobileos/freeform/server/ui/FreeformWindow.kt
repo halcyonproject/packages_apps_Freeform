@@ -299,12 +299,11 @@ class FreeformWindow(
         val packageNameView = resourceHolder.getLayoutChildViewByTag<TextView>(freeformLayout, "packageName")
         val maximizeView = resourceHolder.getLayoutChildViewByTag<View>(freeformLayout, "maximizeView")
         val minimizeView = resourceHolder.getLayoutChildViewByTag<View>(freeformLayout, "minimizeView")
-        val pinView = resourceHolder.getLayoutChildViewByTag<View>(freeformLayout, "pinView")
         val leftScaleView = resourceHolder.getLayoutChildViewByTag<View>(freeformLayout, "leftScaleView")
         val rightScaleView = resourceHolder.getLayoutChildViewByTag<View>(freeformLayout, "rightScaleView")
         val veilAppIconView = resourceHolder.getLayoutChildViewByTag<ImageView>(freeformLayout, "veilAppIcon")
         if (null == minimizeView || null == leftScaleView || null == rightScaleView 
-                || null == maximizeView || null == pinView || null == appIconView || null == packageNameView
+                || null == maximizeView || null == appIconView || null == packageNameView
                 || null == veilAppIconView) {
             Slog.e(TAG, "left&leftScale&rightScale view is null")
             destroy("addFreeformView:left&leftScale&rightScale view is null")
@@ -315,7 +314,6 @@ class FreeformWindow(
         packageNameView.text = appPackageName
         minimizeView.setOnClickListener(LeftViewClickListener(this))
         maximizeView.setOnClickListener(MaximizeClickListener(this))
-        pinView.setOnClickListener(PinClickListener(this))
         leftScaleView.setOnTouchListener(ScaleTouchListener(this, false))
         rightScaleView.setOnTouchListener(ScaleTouchListener(this))
 
