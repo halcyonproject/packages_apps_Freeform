@@ -107,10 +107,6 @@ class ScaleTouchListener(private val window: FreeformWindow, private val isRight
                     val yDelta = event.rawY - startY
                     width = max(25, (rootView.width + xDelta).roundToInt())
                     height = max(25, (rootView.height + yDelta).roundToInt())
-                    if (width > height) {
-                        if (xDelta < 0) width = height
-                        else height = width
-                    }
                 }
                 startX = event.rawX
                 startY = event.rawY

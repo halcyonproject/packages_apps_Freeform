@@ -248,13 +248,13 @@ class FreeformWindow(
         val isPortrait = defaultDisplayRotation == Surface.ROTATION_0 ||
                 defaultDisplayRotation == Surface.ROTATION_180
         freeformConfig.apply {
-            height = (defaultDisplayHeight * (if (isPortrait) 0.4 else 0.7)).roundToInt()
-            width = if (isPortrait) {
-                (defaultDisplayWidth * 0.7).roundToInt()
+            if (isPortrait) {
+                height = (defaultDisplayHeight * 0.5).roundToInt()
+                width = (height * 9.0 / 16.0).roundToInt()
             } else {
-                // Landscape: increase width by 1.6x while preserving aspect ratio base
-                val baseWidth = defaultDisplayHeight * defaultDisplayHeight / defaultDisplayWidth
-                (baseWidth * 1.6).roundToInt()
+                // Landscape: aim for a 16:9-ish window
+                width = (defaultDisplayWidth * 0.4).roundToInt()
+                height = (width * 9.0 / 16.0).roundToInt()
             }
             dlog(TAG, "measureSize: isPortrait=$isPortrait width=$width height=$height")
         }
