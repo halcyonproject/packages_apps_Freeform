@@ -2,8 +2,12 @@
  * SPDX-FileCopyrightText: DerpFest AOSP
  * SPDX-License-Identifier: Apache-2.0
  */
+
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
  
 package com.libremobileos.sidebar.ui.sidebar
+
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -17,6 +21,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.*
@@ -30,14 +35,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.navigation.compose.rememberNavController
-import com.android.settingslib.spa.framework.compose.localNavController
-import com.android.settingslib.spa.framework.compose.rememberDrawablePainter
-import com.android.settingslib.spa.framework.theme.SettingsDimension
-import com.android.settingslib.spa.widget.preference.SwitchPreference
-import com.android.settingslib.spa.widget.preference.SwitchPreferenceModel
-import com.android.settingslib.spa.widget.scaffold.SettingsScaffold
-import com.android.settingslib.spa.widget.ui.Category
+import com.android.settingslib.spa.framework.theme.SettingsTheme
+import org.hlcyn.ui.components.rememberDrawablePainter
 import com.libremobileos.sidebar.R
 import com.libremobileos.sidebar.app.SidebarApplication
 import com.libremobileos.sidebar.ui.theme.SidebarTheme
@@ -57,11 +56,8 @@ class SidebarPerAppConfigFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                SidebarTheme {
-                    val navController = rememberNavController()
-                    CompositionLocalProvider(navController.localNavController()) {
-                        SidebarPerAppConfigScreen()
-                    }
+                SettingsTheme {
+                    SidebarPerAppConfigScreen(onBack = { parentFragmentManager.popBackStack() })
                 }
             }
         }
@@ -69,15 +65,14 @@ class SidebarPerAppConfigFragment : Fragment() {
 }
 
 @Composable
-fun SidebarPerAppConfigContent() {
-    val navController = rememberNavController()
-    CompositionLocalProvider(navController.localNavController()) {
-        SidebarPerAppConfigScreen()
+fun SidebarPerAppConfigContent(onBack: () -> Unit = {}) {
+    SettingsTheme {
+        SidebarPerAppConfigScreen(onBack = onBack)
     }
 }
 
 @Composable
-fun SidebarPerAppConfigScreen() {
+fun SidebarPerAppConfigScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val sharedPrefs = context.getSharedPreferences(SidebarApplication.CONFIG, Context.MODE_PRIVATE)
     
@@ -102,8 +97,39 @@ fun SidebarPerAppConfigScreen() {
         }
     }
 
-    SettingsScaffold(
-        title = stringResource(R.string.sidebar_per_app_config)
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        topBar = {
+            @OptIn(ExperimentalMaterial3Api::class)
+            TopAppBar(
+                title = { 
+                    Text(
+                        stringResource(R.string.sidebar_per_app_config),
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                },
+                navigationIcon = {
+                    Box(modifier = Modifier.padding(start = 12.dp)) {
+                        FilledTonalIconButton(
+                            onClick = onBack,
+                            shape = IconButtonDefaults.smallRoundShape,
+                            colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                )
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -125,11 +151,11 @@ fun SidebarPerAppConfigScreen() {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Search apps") },
+                label = { Text(stringResource(R.string.sidebar_search_apps)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = stringResource(R.string.sidebar_search)
                     )
                 },
                 trailingIcon = if (searchQuery.isNotEmpty()) {
@@ -137,7 +163,7 @@ fun SidebarPerAppConfigScreen() {
                         IconButton(onClick = { searchQuery = "" }) {
                             Icon(
                                 Icons.Default.Clear,
-                                contentDescription = "Clear search"
+                                contentDescription = stringResource(R.string.sidebar_clear_search)
                             )
                         }
                     }

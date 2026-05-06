@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.room.ktx)
     compileOnly(files("libs/XposedBridgeAPI-89.jar"))
     compileOnly(projects.hiddenApi)
+    implementation(projects.halcyonUi)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

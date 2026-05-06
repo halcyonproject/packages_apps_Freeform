@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import com.android.settingslib.spa.framework.theme.SettingsTheme
+import com.libremobileos.sidebar.ui.sidebar.SidebarSettingsPage
 
 /**
  * @author KindBrave

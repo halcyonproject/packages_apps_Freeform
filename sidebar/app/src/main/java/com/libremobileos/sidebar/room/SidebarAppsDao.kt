@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SidebarAppsDao {
 
-    @Query("INSERT INTO SidebarAppsEntity(packageName, activityName, userId) VALUES(:packageName, :activityName, :userId)")
+    @Query("INSERT INTO SidebarAppsEntity(packageName, activityName, userId) SELECT :packageName, :activityName, :userId WHERE NOT EXISTS (SELECT 1 FROM SidebarAppsEntity WHERE packageName = :packageName AND activityName = :activityName AND userId = :userId)")
     fun insert(packageName: String, activityName: String, userId: Int)
 
     @Query("DELETE FROM SidebarAppsEntity WHERE packageName = :packageName and activityName = :activityName and userId = :userId")

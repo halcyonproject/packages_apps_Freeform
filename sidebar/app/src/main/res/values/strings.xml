@@ -43,6 +43,14 @@
     <string name="sidebar_bg_transparency_value">Background transparency: %1$.2f</string>
     <string name="sidebar_reset_defaults">Reset to defaults</string>
 
+    <!-- Sections & Headers -->
+    <string name="sidebar_options">Options</string>
+    <string name="sidebar_customization">Customization</string>
+    <string name="sidebar_select_apps">Select Apps</string>
+    <string name="sidebar_search_apps">Search apps</string>
+    <string name="sidebar_clear_search">Clear search</string>
+    <string name="sidebar_search">Search</string>
+
     <!-- Visual effects -->
     <string name="sidebar_drop_shadow_title">Drop shadow</string>
     <string name="sidebar_drop_shadow_summary">Add shadow effect to sidebar</string>

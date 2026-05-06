@@ -24,6 +24,7 @@ android_app {
     privileged: true,
     static_libs: [
         "SpaLib",
+        "HalcyonUILib",
         "androidx.activity_activity-compose",
         "androidx.appcompat_appcompat",
         "androidx.compose.material3_material3",

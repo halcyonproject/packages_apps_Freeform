@@ -45,6 +45,12 @@ class SidebarSettingsViewModel(private val application: Application) : AndroidVi
     val appListFlow: StateFlow<List<SidebarAppInfo>>
         get() = _appList.asStateFlow()
     private val _appList = MutableStateFlow<List<SidebarAppInfo>>(emptyList())
+    private val _sidebarEnabled = MutableStateFlow(false)
+    val sidebarEnabledFlow = _sidebarEnabled.asStateFlow()
+    private val _predictedAppsEnabled = MutableStateFlow(true)
+    val predictedAppsEnabledFlow = _predictedAppsEnabled.asStateFlow()
+    private val _autoEnableSelectedAppsEnabled = MutableStateFlow(false)
+    val autoEnableSelectedAppsEnabledFlow = _autoEnableSelectedAppsEnabled.asStateFlow()
     private val appComparator = AppComparator()
 
     val isEnabled = UserHandle.myUserId() == 0
@@ -69,6 +75,9 @@ class SidebarSettingsViewModel(private val application: Application) : AndroidVi
             sp = appContext.getSharedPreferences(SidebarApplication.CONFIG, Context.MODE_PRIVATE)
 
             initAllAppList()
+            _sidebarEnabled.value = sp.getBoolean(SidebarService.SIDELINE, false)
+            _predictedAppsEnabled.value = sp.getBoolean(KEY_SHOW_PREDICTED_APPS, true)
+            _autoEnableSelectedAppsEnabled.value = sp.getBoolean(SidebarMonitorService.KEY_AUTO_ENABLE_SELECTED_APPS, false)
             appContext.registerReceiverAsUser(
                 userProfileReceiver,
                 UserHandle.CURRENT,
@@ -91,37 +100,66 @@ class SidebarSettingsViewModel(private val application: Application) : AndroidVi
     fun getSidebarEnabled(): Boolean =
         isEnabled && sp.getBoolean(SidebarService.SIDELINE, false)
 
-    fun setSidebarEnabled(enabled: Boolean) =
+    fun setSidebarEnabled(enabled: Boolean) {
         sp.edit()
             .putBoolean(SidebarService.SIDELINE, enabled)
             .apply()
+        _sidebarEnabled.value = enabled
+    }
 
     fun addSidebarApp(appInfo: SidebarAppInfo) {
-        repository.insertSidebarApp(appInfo.packageName, appInfo.activityName, appInfo.userId)
+        viewModelScope.launch(Dispatchers.Main) {
+            updateAppState(appInfo, true)
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.insertSidebarApp(appInfo.packageName, appInfo.activityName, appInfo.userId)
+            }
+        }
     }
 
     fun deleteSidebarApp(appInfo: SidebarAppInfo) {
-        repository.deleteSidebarApp(appInfo.packageName, appInfo.activityName, appInfo.userId)
+        viewModelScope.launch(Dispatchers.Main) {
+            updateAppState(appInfo, false)
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.deleteSidebarApp(appInfo.packageName, appInfo.activityName, appInfo.userId)
+            }
+        }
+    }
+
+    private fun updateAppState(appInfo: SidebarAppInfo, isSidebarApp: Boolean) {
+        val index = allAppList.indexOfFirst { 
+            it.packageName == appInfo.packageName && 
+            it.activityName == appInfo.activityName && 
+            it.userId == appInfo.userId 
+        }
+        if (index != -1) {
+            allAppList[index] = allAppList[index].copy(isSidebarApp = isSidebarApp)
+            _appList.value = allAppList.toList()
+        }
     }
 
     fun getPredictedAppsEnabled(): Boolean =
         sp.getBoolean(KEY_SHOW_PREDICTED_APPS, true)
 
-    fun setPredictedAppsEnabled(enabled: Boolean) =
+    fun setPredictedAppsEnabled(enabled: Boolean) {
         sp.edit()
             .putBoolean(KEY_SHOW_PREDICTED_APPS, enabled)
             .apply()
+        _predictedAppsEnabled.value = enabled
+    }
 
     fun getAutoEnableSelectedAppsEnabled(): Boolean =
         sp.getBoolean(SidebarMonitorService.KEY_AUTO_ENABLE_SELECTED_APPS, false)
 
-    fun setAutoEnableSelectedAppsEnabled(enabled: Boolean) =
+    fun setAutoEnableSelectedAppsEnabled(enabled: Boolean) {
         sp.edit()
             .putBoolean(SidebarMonitorService.KEY_AUTO_ENABLE_SELECTED_APPS, enabled)
             .apply()
+        _autoEnableSelectedAppsEnabled.value = enabled
+    }
 
     private fun initAllAppList() {
         viewModelScope.launch(Dispatchers.IO) {
+            val newList = ArrayList<SidebarAppInfo>()
             userManager.getSidebarFilteredUsers().forEach { userInfo ->
                 logger.d("initAllAppList for user $userInfo")
                 val list = launcherApps.getActivityList(null, userInfo.userHandle)
@@ -132,7 +170,7 @@ class SidebarSettingsViewModel(private val application: Application) : AndroidVi
                     if (!application.isResizeableActivity(component)) {
                         logger.d("activity not resizeable, skipped $component")
                     } else {
-                        allAppList.add(
+                        newList.add(
                             SidebarAppInfo(
                                 "${info.label}${userInfo.suffix}",
                                 info.getBadgedIcon(0),
@@ -150,8 +188,10 @@ class SidebarSettingsViewModel(private val application: Application) : AndroidVi
                 }
             }
 
-            Collections.sort(allAppList, appComparator)
-            _appList.value = allAppList
+            Collections.sort(newList, appComparator)
+            allAppList.clear()
+            allAppList.addAll(newList)
+            _appList.value = allAppList.toList()
             logger.d("emitted allAppList: $allAppList")
         }
     }

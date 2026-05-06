@@ -19,3 +19,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Sidebar"
 include(":app")
+include(":halcyon-ui")
+project(":halcyon-ui").projectDir = file("../../../frameworks/halcyon/libraries/ui")
