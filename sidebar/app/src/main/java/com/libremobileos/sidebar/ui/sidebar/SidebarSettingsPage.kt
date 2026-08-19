@@ -9,7 +9,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Apps
@@ -111,9 +113,23 @@ private fun SidebarSettingsContent(
                         actionIconContentColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
-            },
-            bottomBar = {
-                HalcyonFloatingBottomBar {
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = paddingValues.calculateTopPadding())
+            ) {
+                Crossfade(targetState = selectedTab, modifier = Modifier.fillMaxSize()) { tab ->
+                    when (tab) {
+                        0 -> SettingsTab(viewModel, onOpenCustomization = { showCustomization = true })
+                        1 -> AppsTab(viewModel)
+                    }
+                }
+
+                HalcyonFloatingBottomBar(
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                ) {
                     HalcyonFloatingBottomBarItem(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
@@ -124,15 +140,6 @@ private fun SidebarSettingsContent(
                         onClick = { selectedTab = 1 },
                         icon = Icons.Default.Apps
                     )
-                }
-            }
-        ) { paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues)) {
-                Crossfade(targetState = selectedTab) { tab ->
-                    when (tab) {
-                        0 -> SettingsTab(viewModel, onOpenCustomization = { showCustomization = true })
-                        1 -> AppsTab(viewModel)
-                    }
                 }
             }
         }
@@ -152,7 +159,8 @@ fun SettingsTab(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 8.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(top = 8.dp, bottom = 80.dp)
     ) {
         MainSwitchPreference(
             object : SwitchPreferenceModel {
