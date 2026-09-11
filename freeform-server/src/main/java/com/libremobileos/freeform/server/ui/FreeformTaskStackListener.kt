@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Slog
 import android.view.Display
 import android.view.Surface
-import android.window.TaskSnapshot
 import com.libremobileos.freeform.server.Debug.dlog
 import com.libremobileos.freeform.server.LMOFreeformServiceHolder
 import com.libremobileos.freeform.server.SystemServiceHolder
@@ -107,7 +106,30 @@ class FreeformTaskStackListener(
     }
 
     override fun onActivityRequestedOrientationChanged(taskId: Int, requestedOrientation: Int) {
-
+        if (taskId == this.taskId) {
+            dlog(TAG, "onActivityRequestedOrientationChanged: $requestedOrientation")
+            val max = max(window.freeformConfig.width, window.freeformConfig.height)
+            val min = min(window.freeformConfig.width, window.freeformConfig.height)
+            val maxHangUp = max(window.freeformConfig.hangUpWidth, window.freeformConfig.hangUpHeight)
+            val minHangUp = min(window.freeformConfig.hangUpWidth, window.freeformConfig.hangUpHeight)
+            when (requestedOrientation) {
+                PORTRAIT -> {
+                    dlog(TAG, "PORTRAIT")
+                    window.freeformConfig.width = min
+                    window.freeformConfig.height = max
+                    window.freeformConfig.hangUpWidth = minHangUp
+                    window.freeformConfig.hangUpHeight = maxHangUp
+                }
+                LANDSCAPE_1, LANDSCAPE_2 -> {
+                    dlog(TAG, "LANDSCAPE")
+                    window.freeformConfig.width = max
+                    window.freeformConfig.height = min
+                    window.freeformConfig.hangUpWidth = maxHangUp
+                    window.freeformConfig.hangUpHeight = minHangUp
+                }
+            }
+            window.handler.post { window.changeOrientation() }
+        }
     }
 
     override fun onTaskRemovalStarted(taskInfo: ActivityManager.RunningTaskInfo?) {
@@ -120,10 +142,6 @@ class FreeformTaskStackListener(
     }
 
     override fun onTaskProfileLocked(taskInfo: ActivityManager.RunningTaskInfo, userId: Int) {
-
-    }
-
-    override fun onTaskSnapshotChanged(taskId: Int, snapshot: TaskSnapshot) {
 
     }
 
@@ -152,33 +170,6 @@ class FreeformTaskStackListener(
 
     }
 
-    override fun onTaskRequestedOrientationChanged(taskId: Int, requestedOrientation: Int) {
-        if (taskId == this.taskId) {
-            dlog(TAG, "onTaskRequestedOrientationChanged: $requestedOrientation")
-            val max = max(window.freeformConfig.width, window.freeformConfig.height)
-            val min = min(window.freeformConfig.width, window.freeformConfig.height)
-            val maxHangUp = max(window.freeformConfig.hangUpWidth, window.freeformConfig.hangUpHeight)
-            val minHangUp = min(window.freeformConfig.hangUpWidth, window.freeformConfig.hangUpHeight)
-            when (requestedOrientation) {
-                PORTRAIT -> {
-                    dlog(TAG, "PORTRAIT")
-                    window.freeformConfig.width = min
-                    window.freeformConfig.height = max
-                    window.freeformConfig.hangUpWidth = minHangUp
-                    window.freeformConfig.hangUpHeight = maxHangUp
-                }
-                LANDSCAPE_1, LANDSCAPE_2 -> {
-                    dlog(TAG, "LANDSCAPE")
-                    window.freeformConfig.width = max
-                    window.freeformConfig.height = min
-                    window.freeformConfig.hangUpWidth = maxHangUp
-                    window.freeformConfig.hangUpHeight = minHangUp
-                }
-            }
-            window.handler.post { window.changeOrientation() }
-        }
-    }
-
     override fun onActivityRotation(displayId: Int) {
 
     }
@@ -188,10 +179,6 @@ class FreeformTaskStackListener(
     }
 
     override fun onLockTaskModeChanged(mode: Int) {
-
-    }
-
-    override fun onTaskSnapshotInvalidated(taskId: Int) {
 
     }
 }
