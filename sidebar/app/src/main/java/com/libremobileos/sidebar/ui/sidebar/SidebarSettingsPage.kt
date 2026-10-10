@@ -155,12 +155,13 @@ fun SettingsTab(
     val sidebarEnabled by viewModel.sidebarEnabledFlow.collectAsState()
     val autoEnableSelectedApps by viewModel.autoEnableSelectedAppsEnabledFlow.collectAsState()
     val predictedAppsEnabled by viewModel.predictedAppsEnabledFlow.collectAsState()
+    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(top = 8.dp, bottom = 80.dp)
+            .padding(top = 8.dp, bottom = 80.dp + navBarBottom)
     ) {
         MainSwitchPreference(
             object : SwitchPreferenceModel {
@@ -224,10 +225,11 @@ fun AppsTab(
     viewModel: SidebarSettingsViewModel
 ) {
     val sidebarApps by viewModel.appListFlow.collectAsState()
+    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp) // Space for floating bar
+        contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp + navBarBottom) // Space for floating bar
     ) {
         item {
             Category(title = stringResource(R.string.sidebar_select_apps)) {
