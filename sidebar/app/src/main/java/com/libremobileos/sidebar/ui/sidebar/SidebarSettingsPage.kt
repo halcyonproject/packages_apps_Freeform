@@ -128,7 +128,9 @@ private fun SidebarSettingsContent(
                 }
 
                 HalcyonFloatingBottomBar(
-                    modifier = Modifier.align(Alignment.BottomCenter)
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
                 ) {
                     HalcyonFloatingBottomBarItem(
                         selected = selectedTab == 0,
