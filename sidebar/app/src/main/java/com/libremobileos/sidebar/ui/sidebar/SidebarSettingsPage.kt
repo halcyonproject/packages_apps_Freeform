@@ -4,6 +4,7 @@ package com.libremobileos.sidebar.ui.sidebar
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -57,6 +58,7 @@ private fun SidebarSettingsContent(
     viewModel: SidebarSettingsViewModel
 ) {
     val context = LocalContext.current
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val sharedPrefs = context.getSharedPreferences("config", Context.MODE_PRIVATE)
     
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -90,7 +92,7 @@ private fun SidebarSettingsContent(
                     navigationIcon = {
                         Box(modifier = Modifier.padding(start = 12.dp)) {
                             FilledTonalIconButton(
-                                onClick = { /* Handle back or exit */ },
+                                onClick = { backDispatcher?.onBackPressed() },
                                 shape = IconButtonDefaults.smallRoundShape,
                                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
