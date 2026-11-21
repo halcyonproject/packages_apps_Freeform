@@ -84,11 +84,12 @@ class AllAppViewModel(private val application: Application): AndroidViewModel(ap
                         logger.d("onPackageAdded: activity not resizeable, skipped ${launchIntent.component}")
                         return
                     }
+                    val activity = application.packageManager.getActivityInfo(launchIntent.component!!, 0)
                     viewModelScope.launch(Dispatchers.IO) {
                         allAppList.add(
                             AppInfo(
-                                info.loadLabel(application.packageManager).toString(),
-                                application.getBadgedIcon(info, user),
+                                activity.loadLabel(application.packageManager).toString(),
+                                application.getBadgedIcon(activity, user),
                                 info.packageName,
                                 launchIntent.component!!.className,
                                 userId
