@@ -6,6 +6,7 @@ import android.app.prediction.AppPredictionManager
 import android.app.prediction.AppPredictor
 import android.app.prediction.AppTarget
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_PROFILE_AVAILABLE
@@ -146,9 +147,10 @@ class ServiceViewModel(private val application: Application): AndroidViewModel(a
                             logger.d("appPredictionCallback: activity is not resizeable, skipped $target")
                             null
                         } else {
+                            val activity = application.packageManager.getActivityInfo(component, 0)
                             AppInfo(
-                                info.loadLabel(application.packageManager).toString(),
-                                application.getBadgedIcon(info, target.user),
+                                activity.loadLabel(application.packageManager).toString(),
+                                application.getBadgedIcon(activity, target.user),
                                 info.packageName,
                                 component.className,
                                 userId
@@ -322,9 +324,13 @@ class ServiceViewModel(private val application: Application): AndroidViewModel(a
         if (!info.enabled) {
             throw Exception("package is disabled.")
         }
+        val activity = application.packageManager.getActivityInfo(
+            ComponentName(packageName, activityName),
+            0
+        )
         return AppInfo(
-            info.loadLabel(application.packageManager).toString(),
-            application.getBadgedIcon(info, userId),
+            activity.loadLabel(application.packageManager).toString(),
+            application.getBadgedIcon(activity, userId),
             packageName,
             activityName,
             userId
